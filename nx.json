@@ -30,5 +30,13 @@
       "tags": [],
       "implicitDependencies": ["site"]
     }
+  },
+  "targetDependencies": {
+    "build": [
+      {
+        "target": "build",
+        "projects": "dependencies"
+      }
+    ]
   }
 }
