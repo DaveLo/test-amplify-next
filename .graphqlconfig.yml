@@ -1,0 +1,12 @@
+projects:
+  testnextjs:
+    schemaPath: apps/site/graphql/schema.json
+    includes:
+      - apps/site/src/graphql/**/*.ts
+    excludes:
+      - ./amplify/**
+    extensions:
+      amplify:
+        codeGenTarget: typescript
+        generatedFileName: apps/site/src/API.ts
+        docsFilePath: apps/site/src/graphql

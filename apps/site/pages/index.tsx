@@ -1,99 +1,102 @@
-import React from 'react';
+import { AmplifyAuthenticator } from '@aws-amplify/ui-react';
+import { Amplify, API, Auth, withSSRContext } from 'aws-amplify';
+import Head from 'next/head';
+import awsExports from '../aws-exports';
+import { createPost } from '../src/graphql/mutations';
+import { listPosts } from '../src/graphql/queries';
+import styles from '../styles/Home.module.css';
 
-import styles from './index.module.css';
+Amplify.configure({ ...awsExports, ssr: true });
 
-export function Index() {
-  /*
-   * Replace the elements below with your own.
-   *
-   * Note: The corresponding styles are in the ./index.css file.
-   */
+export async function getServerSideProps({ req }) {
+  const SSR = withSSRContext({ req });
+  const response = await SSR.API.graphql({ query: listPosts });
+
+  return {
+    props: {
+      posts: response.data.listPosts.items,
+    },
+  };
+}
+
+async function handleCreatePost(event) {
+  event.preventDefault();
+
+  const form = new FormData(event.target);
+
+  try {
+    const { data } = await API.graphql({
+      authMode: 'AMAZON_COGNITO_USER_POOLS',
+      query: createPost,
+      variables: {
+        input: {
+          title: form.get('title'),
+          content: form.get('content'),
+        },
+      },
+    });
+
+    window.location.href = `/posts/${data.createPost.id}`;
+  } catch ({ errors }) {
+    console.error(...errors);
+    throw new Error(errors[0].message);
+  }
+}
+
+export default function Home({ posts = [] }) {
   return (
-    <div className={styles.page}>
-      <h2>Resources &amp; Tools</h2>
-      <p>Thank you for using and showing some ♥ for Nx.</p>
-      <div className="flex github-star-container">
-        <a
-          href="https://github.com/nrwl/nx"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {' '}
-          If you like Nx, please give it a star:
-          <div className="github-star-badge">
-            <img src="/star.svg" className="material-icons" alt="" />
-            Star
+    <div className={styles.container}>
+      <Head>
+        <title>Amplify + Next.js</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <main className={styles.main}>
+        <h1 className={styles.title}>Amplify + Next.js</h1>
+
+        <p className={styles.description}>
+          <code className={styles.code}>{posts.length}</code>
+          posts
+        </p>
+
+        <div className={styles.grid}>
+          {posts.map((post) => (
+            <a className={styles.card} href={`/posts/${post.id}`} key={post.id}>
+              <h3>{post.title}</h3>
+              <p>{post.content}</p>
+            </a>
+          ))}
+
+          <div className={styles.card}>
+            <h3 className={styles.title}>New Post</h3>
+
+            <AmplifyAuthenticator>
+              <form onSubmit={handleCreatePost}>
+                <fieldset>
+                  <legend>Title</legend>
+                  <input
+                    defaultValue={`Today, ${new Date().toLocaleTimeString()}`}
+                    name="title"
+                  />
+                </fieldset>
+
+                <fieldset>
+                  <legend>Content</legend>
+                  <textarea
+                    defaultValue="I built an Amplify app with Next.js!"
+                    name="content"
+                  />
+                </fieldset>
+
+                <button>Create Post</button>
+                <button type="button" onClick={() => Auth.signOut()}>
+                  Sign out
+                </button>
+              </form>
+            </AmplifyAuthenticator>
           </div>
-        </a>
-      </div>
-      <p>Here are some links to help you get started.</p>
-      <ul className="resources">
-        <li className="col-span-2">
-          <a
-            className="resource flex"
-            href="https://egghead.io/playlists/scale-react-development-with-nx-4038"
-          >
-            Scale React Development with Nx (Course)
-          </a>
-        </li>
-        <li className="col-span-2">
-          <a
-            className="resource flex"
-            href="https://nx.dev/latest/react/tutorial/01-create-application"
-          >
-            Interactive tutorial
-          </a>
-        </li>
-        <li className="col-span-2">
-          <a className="resource flex" href="https://nx.app/">
-            <svg
-              width="36"
-              height="36"
-              viewBox="0 0 120 120"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M120 15V30C103.44 30 90 43.44 90 60C90 76.56 76.56 90 60 90C43.44 90 30 103.44 30 120H15C6.72 120 0 113.28 0 105V15C0 6.72 6.72 0 15 0H105C113.28 0 120 6.72 120 15Z"
-                fill="#0E2039"
-              />
-              <path
-                d="M120 30V105C120 113.28 113.28 120 105 120H30C30 103.44 43.44 90 60 90C76.56 90 90 76.56 90 60C90 43.44 103.44 30 120 30Z"
-                fill="white"
-              />
-            </svg>
-            <span className="gutter-left">Nx Cloud</span>
-          </a>
-        </li>
-      </ul>
-      <h2>Next Steps</h2>
-      <p>Here are some things you can do with Nx.</p>
-      <details open>
-        <summary>Add UI library</summary>
-        <pre>{`# Generate UI lib
-nx g @nrwl/react:lib ui
-
-# Add a component
-nx g @nrwl/react:component xyz --project ui`}</pre>
-      </details>
-      <details>
-        <summary>View dependency graph</summary>
-        <pre>{`nx dep-graph`}</pre>
-      </details>
-      <details>
-        <summary>Run affected commands</summary>
-        <pre>{`# see what's been affected by changes
-nx affected:dep-graph
-
-# run tests for current changes
-nx affected:test
-
-# run e2e tests for current changes
-nx affected:e2e
-`}</pre>
-      </details>
+        </div>
+      </main>
     </div>
   );
 }
-
-export default Index;
