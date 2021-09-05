@@ -5,6 +5,8 @@ import awsExports from '../aws-exports';
 import { createPost } from '../src/graphql/mutations';
 import { listPosts } from '../src/graphql/queries';
 import styles from '../styles/Home.module.css';
+import type { GraphQLResult } from '@aws-amplify/api-graphql';
+import type { CreatePostMutation } from '../src/API';
 
 Amplify.configure({ ...awsExports, ssr: true });
 
@@ -25,7 +27,7 @@ async function handleCreatePost(event) {
   const form = new FormData(event.target);
 
   try {
-    const { data } = await API.graphql({
+    const result = (await API.graphql({
       authMode: 'AMAZON_COGNITO_USER_POOLS',
       query: createPost,
       variables: {
@@ -34,9 +36,9 @@ async function handleCreatePost(event) {
           content: form.get('content'),
         },
       },
-    });
+    })) as GraphQLResult<CreatePostMutation>;
 
-    window.location.href = `/posts/${data.createPost.id}`;
+    window.location.href = `/posts/${result.data.createPost.id}`;
   } catch ({ errors }) {
     console.error(...errors);
     throw new Error(errors[0].message);
