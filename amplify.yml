@@ -1,0 +1,19 @@
+version: 1
+applications:
+  - appRoot: apps/site
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - cd ../..
+            - npm i
+        build:
+          commands:
+            - npx nx run site:build --prod
+            - cs apps/site
+      artifacts:
+        baseDirectory: ../../dist/apps/site
+        files:
+          - '**/*'
+      cache:
+        paths: []
