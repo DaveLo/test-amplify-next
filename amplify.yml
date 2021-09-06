@@ -22,7 +22,6 @@ applications:
             - npx nx run site:build --prod
         postBuild:
           commands:
-            - ls -alhR dist/apps/site
             - cd apps/site
       artifacts:
         baseDirectory: ../../dist/apps/site/.next

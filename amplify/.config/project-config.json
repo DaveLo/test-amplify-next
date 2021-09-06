@@ -6,7 +6,7 @@
     "framework": "react",
     "config": {
       "SourceDir": "apps/site",
-      "DistributionDir": "dist/apps/site",
+      "DistributionDir": "dist/apps/site/.next",
       "BuildCommand": "npm run-script build",
       "StartCommand": "npm run-script start"
     }
