@@ -22,12 +22,10 @@ applications:
             - npx nx run site:build --prod
         postBuild:
           commands:
-            - ls -R dist/apps/site
+            - ls -alhR dist/apps/site
             - cd apps/site
       artifacts:
         baseDirectory: ../../dist/apps/site/.next
         files:
           - '**/*'
-      cache:
-        paths:
-          - ../../node_modules/**/*
+      cache: paths:[]
