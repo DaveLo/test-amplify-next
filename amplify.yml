@@ -20,7 +20,7 @@ applications:
             - npx nx run site:build --prod
             - cd apps/site
       artifacts:
-        baseDirectory: ../../dist/apps/site
+        baseDirectory: ../../dist/apps/site/.next
         files:
           - '**/*'
       cache:
