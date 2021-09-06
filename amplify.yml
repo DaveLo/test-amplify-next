@@ -22,11 +22,10 @@ applications:
             - npx nx run site:build --prod
         postBuild:
           commands:
-            - cp -R dist/apps/site/.next apps/site
-            - cp dist/apps/site/package.json apps/site/package.json
+            - ls -R dist/apps/site
             - cd apps/site
       artifacts:
-        baseDirectory: .next
+        baseDirectory: ../../dist/apps/site/.next
         files:
           - '**/*'
       cache:
