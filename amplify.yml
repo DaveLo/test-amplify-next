@@ -1,6 +1,14 @@
 version: 1
 applications:
   - appRoot: apps/site
+    backend:
+      phases:
+        build:
+          commands:
+            - cd ../..
+            - '# Execute Amplify CLI with the helper script'
+            - amplifyPush --simple
+            - cd apps/site
     frontend:
       phases:
         preBuild:
@@ -10,7 +18,7 @@ applications:
         build:
           commands:
             - npx nx run site:build --prod
-            - cs apps/site
+            - cd apps/site
       artifacts:
         baseDirectory: ../../dist/apps/site
         files:
